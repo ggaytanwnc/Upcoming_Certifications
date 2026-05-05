@@ -1,23 +1,19 @@
 from email.message import EmailMessage
 import win32com.client as win32
-from config import EMAIL_SENDER
+from config import EMAIL_SENDER, df_Mail
 
+#Obteniendo listado de mail
+list_to = ";".join(df_Mail["To"].dropna().astype(str))
+list_cc = ";".join(df_Mail["CC"].dropna().astype(str))
 
-def send_email(receiver, subject, body, attachment_path):
-    #msg =  EmailMessage()
-    #msg['From'] = sender
-    #msg['To'] = receiver
-    #msg['Subject'] = subject
-    #msg.set_content(body)
-
-    #obteniendo configuracion cuenta BOT
-    sender = EMAIL_SENDER
+def send_email(receiver, cc,  subject, body, attachment_path):
 
     try:
         outlook = win32.Dispatch('outlook.application')
         mail = outlook.CreateItem(0)
-        mail.SentOnBehalfOfName = sender
+        mail.SentOnBehalfOfName = EMAIL_SENDER
         mail.To = receiver
+        mail.CC = cc
         mail.Subject = subject
         mail.Body = body
         mail.Attachments.Add(attachment_path)

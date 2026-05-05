@@ -1,39 +1,44 @@
-from config import BASE_DIR
+from config import BASE_DIR, PATH_CONFIG_FILE, df_config, df_data, PATH_REPORT_FILE, df_Mail
 from extractor import get_data
 from transformer import transform_data
 from reporter import export_report
 from mail import send_email, send_error_notification
 import os
 import warnings
+import pandas as pd
+
 
 warnings.filterwarnings("ignore")
 
 try:
-    source_report = 'Copy of 10.-SMD.xlsm'
-    path_report = os.path.join(BASE_DIR, '..', 'data', source_report)
-    sheet_number = "OP 1 C"
-    ##print(path_report)
+    #Reading Config File (Path of Data)
+    shared_folder = df_config.iloc[0,1]
 
-    #Extract Data
-    df_training_report = get_data(path_report, sheet_number)
+    #Extract Data and Transform Data
+    report = []
+    for row in df_data.itertuples():
+        filename = row.Filename
+        sheet = row.Sheet
 
-    #Transform Data
-    df_training_report = transform_data(df_training_report)
+        df = get_data(shared_folder, filename, sheet)
+        report.append(df)
 
+    df_training_report = pd.concat(report, ignore_index=True)
+
+    
     #Export Data
-    report_name = 'training_cert_expiring.xlsx'
-    path_export = os.path.join(BASE_DIR, '..', 'reports', report_name)
-
-    export_report(path_export, df_training_report),1
-
+    export_report(PATH_REPORT_FILE, df_training_report)
 
     #Sending a email
-    receiver = 'gilberto.gaytan@wnc.com.tw'
+    #Obteniendo listado de mail
+    list_to = ";".join(df_Mail["To"].dropna().astype(str))
+    list_cc = ";".join(df_Mail["CC"].dropna().astype(str))
     subject = 'Certificaciones por expirar'
     body = 'Adjunto el reporte de certificaciones por expirar en los próximos 100 días.'
-    attachment_path = path_export
-    send_email(receiver, subject, body, attachment_path)
+
+    send_email(list_to, list_cc, subject, body, PATH_REPORT_FILE)
     print("Process completed successfully.")
 
 except Exception as e:
+    print(e)
     send_error_notification(e)
