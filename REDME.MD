@@ -14,6 +14,21 @@ certifications_project/
 │   email_service.py
 │   main.py
 │
+├── script/
+    Config/
+    Reports/
+    config.py
+    extractor.py
+    mail.py
+    reporter.py
+    training_cert_expiring.py
+    transformer.py
+│
+│
+│
+│
+│
 ├── logs/
 │
 └── requirements.txt
+
