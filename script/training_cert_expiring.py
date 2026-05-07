@@ -19,6 +19,7 @@ try:
     for row in df_data.itertuples():
         filename = row.Filename
         sheet = row.Sheet
+        
 
         df = get_data(shared_folder, filename, sheet)
         report.append(df)
@@ -40,5 +41,5 @@ try:
     print("Process completed successfully.")
 
 except Exception as e:
-    print(e)
+    print(e, row)
     send_error_notification(e)
